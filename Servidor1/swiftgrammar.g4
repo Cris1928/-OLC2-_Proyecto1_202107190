@@ -702,7 +702,7 @@ expr_arit returns[interfaces.Expresion p]
     | T_STRING '(' opIz=expr_arit ')' { $p = expresion.NewToString($opIz.p, $opIz.start.GetLine(), $opIz.start.GetColumn() ) }
   //  | opIz=expr_arit TO_OWNED { $p = expresion.NewToString($opIz.p, $opIz.start.GetLine(), $opIz.start.GetColumn() ) }
 
-    | ID '.' CONTAINS '(''&' val=expression')' {$p = expresion.NewContains($ID.text, $val.p, $ID.line, $ID.pos  )}
+   
 
     | ID '.' CAPF {$p = expresion.NewCapacity($ID.text, $ID.line, $ID.pos  )}
      /*vector*/

@@ -15,7 +15,6 @@ type Environment struct {
 	TablaFunciones map[string]interface{}
 	TablaStructs   map[string]interfaces.Symbol
 	TablaModules   map[string]interfaces.SymbolModule
-	//TablaFunciones map[string]interface{}
 
 	MainF interface{}
 }
@@ -73,6 +72,23 @@ func NewEnvironment(nombre string, father interface{}) Environment {
 	return env
 }
 
+/* func NewEnvironment(nombre string, father interface{}) Environment {
+	//Tabla := make(map[string]interface{})
+	Tabla := make(map[string]interfaces.Symbol)
+	TablaFunciones := make(map[string]interface{})
+	TablaStructs := make(map[string]interfaces.Symbol)
+	TablaModules := make(map[string]interfaces.SymbolModule)
+
+	var mainpun interface{}
+	if father == nil {
+		mainpun = nil
+	} else {
+		mainpun = father.(Environment).MainF
+	}
+
+	env := Environment{nombre, father, Tabla, TablaFunciones, TablaStructs, TablaModules, mainpun}
+	return env
+}*/
 /*func (env Environment) SaveMain(mainfun interface{}) {
 	env.MainF = mainfun
 }*/
@@ -166,7 +182,27 @@ func (env Environment) GetVariableMut(id string) interfaces.Symbol {
 	return interfaces.Symbol{Id: "", Tipo: interfaces.NULL, Valor: interfaces.Symbol{Id: "", Tipo: interfaces.NULL, Valor: nil}}
 }
 
-// ///getMopdelo
+/*
+func (env Environment) GetModelo(id string) interfaces.SymbolModule {
+
+		var tmpEnv Environment
+		tmpEnv = env
+
+		for {
+			if variable, ok := tmpEnv.TablaModules[id]; ok {
+				return variable
+			}
+
+			if tmpEnv.father == nil {
+				break
+			} else {
+				tmpEnv = tmpEnv.father.(Environment)
+			}
+		}
+
+		return interfaces.SymbolModule{IdMod: "", Body: nil, Line: 0, Column: 0}
+	}
+*/
 func (env Environment) GetModelo(id string) interfaces.SymbolModule {
 
 	var tmpEnv Environment
@@ -296,15 +332,9 @@ func (env Environment) UpdateStructVector(lis_id *arrayList.List, value interfac
 	for {*/
 	//creacion de diccionario temporal
 	tmpDic := make(map[string]interfaces.Symbol)
-	//asignacion de diccionario
 
-	//fmt.Println("-----reflect.TypeOf(structs): ", reflect.TypeOf(structs))
-	//fmt.Println("-----reflect.TypeOf(tmpDic): ", reflect.TypeOf(tmpDic))
-	//tmpDic = tmpEnv.Tabla
 	tmpDic = structs
 
-	//recorro la lista de lis_id
-	//for _, s := range lis_id.ToArray() { //recorremos lista
 	for i := 0; i < lis_id.Len(); i++ {
 		s := lis_id.GetValue(i)
 
@@ -319,11 +349,6 @@ func (env Environment) UpdateStructVector(lis_id *arrayList.List, value interfac
 				variable.IsMut = true
 				if variable.IsMut == true {
 
-					//fmt.Println("-----reflect.TypeOf(tmpDic): ", reflect.TypeOf(tmpDic))
-					//fmt.Println("-----reflect.TypeOf(variable.Valor): ", reflect.TypeOf(variable.Valor))
-					//if i == 0 {
-					//tmpDic = variable.Valor.(interfaces.Symbol).Valor.(map[string]interfaces.Symbol)
-					//} else {
 					tmpDic = variable.Valor.(map[string]interfaces.Symbol)
 					//}
 
@@ -345,24 +370,13 @@ func (env Environment) UpdateStructVector(lis_id *arrayList.List, value interfac
 
 				tmpDic[s.(string)] = value
 				return variable
-				/*} else {
-				//fmt.Println("---3-variable.IsMut", variable.IsMut, "-", variable.Id)
-				NewError("La variable no es mutable", env.Nombre, variable.Line, variable.Column)
-				return interfaces.Symbol{Id: "", Tipo: interfaces.NULL, Valor: nil}
-				*/
+
 			}
 
 		}
 
 	}
 
-	/*if tmpEnv.father == nil {
-			break
-		} else {
-			tmpEnv = tmpEnv.father.(Environment)
-		}
-	}*/
-	//NewError("El atributo dentro del struct no existe", env.Nombre, line, column)
 	return interfaces.Symbol{Id: "", Tipo: interfaces.NULL, Valor: nil}
 }
 
@@ -399,12 +413,8 @@ func (env Environment) AlterVariableVec(id string, value interfaces.Symbol) inte
 	for {
 		if variable, ok := tmpEnv.Tabla[id]; ok {
 
-			//fmt.Println("	update *value.Capacity", value.Capacity)
-			//fmt.Println("	update *value.valor", value.Valor)
 			tmpEnv.Tabla[id] = interfaces.Symbol{Id: id, Tipo: variable.Tipo, Valor: value.Valor, IsMut: variable.IsMut, TiposArr: variable.TiposArr, Capacity: value.Capacity}
-			//tmpEnv.Tabla[id] = value
-			//fmt.Println("variable.IsMutvariable.IsMutvariable.IsMutvariable.IsMut: ", variable.IsMut)
-			//fmt.Println("00variable.Id: ", variable.Id)
+
 			return variable
 		}
 
@@ -457,13 +467,12 @@ func (env Environment) IsFunction() bool {
 //func (env Environment) SaveFuncion(id string, value interfaces.Symbol, tipo interfaces.TipoExpresion, isMut bool, Line int, Column int, nameentorno string, tipos *arrayList.List) {
 func (env Environment) SaveFuncion(id string, symb interface{}, Line int, Column int /*, tipo interfaces.TipoExpresion, isMut bool, nameentorno string, tipos *arrayList.List*/) {
 	if _, ok := env.TablaFunciones[id]; ok {
-		//fmt.Println("La variable " + variable.Id + " ya existe")
-		//NewError("La función "+id+" ya declarada en entorno "+nameentorno, nameentorno, Line, Column)
+
 		NewError("La función '"+id+"' ya declarada en entorno "+env.Nombre, env.Nombre, Line, Column)
 		return
 	}
 	env.TablaFunciones[id] = symb
-	//env.TablaFunciones[id] = interfaces.Symbol{Id: id, Tipo: tipo, Valor: value, IsMut: isMut, Line: Line, Column: Column, TiposArr: tipos}
+
 	NewSymbol(id, "FUNCIÓN", "Función", env.Nombre, Line, Column)
 }
 
@@ -502,6 +511,8 @@ func (env Environment) GetFunction(id string) interface{} {
 		}
 	}
 
-	//NewError("La variable no existe en entorno "+nameentorno, nameentorno, Line, Column)
 	return interfaces.Symbol{Id: "", Tipo: interfaces.NULL, Valor: interfaces.Symbol{Id: "", Tipo: interfaces.NULL, Valor: nil}}
+}
+func LimpiarLista(lista *arrayList.List) {
+	lista.Clear()
 }

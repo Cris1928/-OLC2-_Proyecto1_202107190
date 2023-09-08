@@ -123,7 +123,7 @@ func (p Assignment) Assignment_Array(env interface{}, arrlist interfaces.Symbol,
 			}
 
 		} else {
-			//			fmt.Println("e		arr: ", arr)
+
 			tempExp.Add(arr)
 		}
 	}

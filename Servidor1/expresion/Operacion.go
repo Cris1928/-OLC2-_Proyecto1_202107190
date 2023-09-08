@@ -75,38 +75,6 @@ var rel_dominante = [8][8]interfaces.TipoExpresion{
 	{interfaces.NULL, interfaces.NULL, interfaces.NULL, interfaces.NULL, interfaces.NULL, interfaces.NULL, interfaces.NULL, interfaces.NULL},
 }
 
-/*var suma_dominante = [6][5]interfaces.TipoExpresion{
-	//INTEGER			//FLOAT			   //STRING			  //BOOLEAN		   //NULL
-	//INTEGER
-	{interfaces.INTEGER, interfaces.NULL, interfaces.NULL, interfaces.NULL, interfaces.NULL},
-	//FLOAT
-	{interfaces.NULL, interfaces.FLOAT, interfaces.NULL, interfaces.NULL, interfaces.NULL},
-	//STRING
-	{interfaces.NULL, interfaces.NULL, interfaces.STRING, interfaces.NULL, interfaces.NULL},
-	//STR
-	{interfaces.NULL, interfaces.NULL, interfaces.NULL, interfaces.STR, interfaces.NULL},
-	//BOOLEAN
-	{interfaces.NULL, interfaces.NULL, interfaces.NULL, interfaces.NULL, interfaces.NULL},
-	//NULL
-	{interfaces.NULL, interfaces.NULL, interfaces.NULL, interfaces.NULL, interfaces.NULL},
-}
-
-var resta_dominante = [5][5]interfaces.TipoExpresion{
-	{interfaces.INTEGER, interfaces.NULL, interfaces.NULL, interfaces.NULL, interfaces.NULL},
-	{interfaces.NULL, interfaces.FLOAT, interfaces.NULL, interfaces.NULL, interfaces.NULL},
-	{interfaces.NULL, interfaces.NULL, interfaces.STRING, interfaces.NULL, interfaces.NULL},
-	{interfaces.NULL, interfaces.NULL, interfaces.NULL, interfaces.NULL, interfaces.NULL},
-	{interfaces.NULL, interfaces.NULL, interfaces.NULL, interfaces.NULL, interfaces.NULL},
-}
-
-var multi_division_dominante = [5][5]interfaces.TipoExpresion{
-	{interfaces.INTEGER, interfaces.FLOAT, interfaces.NULL, interfaces.NULL, interfaces.NULL},
-	{interfaces.FLOAT, interfaces.FLOAT, interfaces.NULL, interfaces.NULL, interfaces.NULL},
-	{interfaces.NULL, interfaces.NULL, interfaces.NULL, interfaces.NULL, interfaces.NULL},
-	{interfaces.NULL, interfaces.NULL, interfaces.NULL, interfaces.NULL, interfaces.NULL},
-	{interfaces.NULL, interfaces.NULL, interfaces.NULL, interfaces.NULL, interfaces.NULL},
-}*/
-
 type Aritmetica struct {
 	Op1      interfaces.Expresion
 	Operador string
@@ -142,21 +110,12 @@ func (p Aritmetica) EjecutarValor(env interface{}) interfaces.Symbol {
 	switch p.Operador {
 	case "+":
 		{
-			//	fmt.Println("retornoIzq.Tipo: ", interfaces.GetType(retornoIzq.Tipo))
-			///	fmt.Println("retornoDer.Tipo: ", interfaces.GetType(retornoDer.Tipo))
-			//fmt.Println("retornoIzq.Valor: ", retornoIzq.Valor)
 
 			dominante = res_dominante[retornoIzq.Tipo][retornoDer.Tipo]
 			//	fmt.Println("dom: ", dominante)
 			//	fmt.Println("tranq ", interfaces.STR)
 
 			dominante_unario = res_dominante_unario[retornoDer.Tipo][retornoIzq.Tipo]
-
-			//	fmt.Println("dom_unario: ", dominante_unario)
-			//	fmt.Println("tranq2 ", interfaces.STRING)
-
-			//fmt.Println("dom: ", dominante)
-			//		no_dominante = suma_dominante[retornoIzq.Tipo][retornoDer.Tipo]
 
 			if dominante == interfaces.INTEGER {
 
@@ -215,8 +174,7 @@ func (p Aritmetica) EjecutarValor(env interface{}) interfaces.Symbol {
 			} else if dominante_unario == dominante {
 				r1 := fmt.Sprintf("%v", retornoIzq.Valor)
 				r2 := fmt.Sprintf("%v", retornoDer.Valor)
-				//fmt.Println("aqui7 " + reflect.TypeOf(r1).String())
-				//fmt.Println("aqui7 " + reflect.TypeOf(r2).String())
+
 				return interfaces.Symbol{Id: "", Tipo: dominante, Valor: r1 + r2}
 
 			} else {
@@ -229,13 +187,8 @@ func (p Aritmetica) EjecutarValor(env interface{}) interfaces.Symbol {
 
 	case "-":
 		{
-			//fmt.Println("p.Unario: ", p.Unario)
-			//fmt.Println("retornoIzq.Valor: ", retornoIzq.Valor)
-			if p.Unario {
 
-				/*if retornoIzq.Tipo != interfaces.INTEGER && retornoIzq.Tipo != entorno.FLOAT {
-					return interfaces.RetornoType{Tipo: interfaces.NULL, Valor: nil}
-				}*/
+			if p.Unario {
 
 				if retornoIzq.Tipo == interfaces.INTEGER {
 					return interfaces.Symbol{Id: "", Tipo: retornoIzq.Tipo, Valor: -1 * retornoIzq.Valor.(int)}
@@ -568,6 +521,16 @@ func (p Aritmetica) EjecutarValor(env interface{}) interfaces.Symbol {
 				err.NewError("Tipos incompatibles Logicos (&&) "+desc, env.(environment.Environment).Nombre, p.Line, p.Column)
 			}
 
+			/* 	dominante = rel_dominante[retornoIzq.Tipo][retornoDer.Tipo]
+
+			if dominante == interfaces.BOOLEAN {
+
+				return interfaces.Symbol{Id: "", Tipo: interfaces.BOOLEAN, Valor: retornoIzq.Valor.(bool) && retornoDer.Valor.(bool)}
+
+			} else {
+				desc := fmt.Sprintf("%v con %v", interfaces.GetType(retornoIzq.Tipo), interfaces.GetType(retornoDer.Tipo))
+				err.NewError("Tipos incompatibles Logicos (&&) "+desc, env.(environment.Environment).Nombre, p.Line, p.Column)
+			}*/
 		}
 
 	case "||":
@@ -583,6 +546,17 @@ func (p Aritmetica) EjecutarValor(env interface{}) interfaces.Symbol {
 				desc := fmt.Sprintf("%v con %v", interfaces.GetType(retornoIzq.Tipo), interfaces.GetType(retornoDer.Tipo))
 				err.NewError("Tipos incompatibles Logicos (||) "+desc, env.(environment.Environment).Nombre, p.Line, p.Column)
 			}
+
+			/*dominante = rel_dominante[retornoIzq.Tipo][retornoDer.Tipo]
+
+			if dominante == interfaces.BOOLEAN {
+
+				return interfaces.Symbol{Id: "", Tipo: interfaces.BOOLEAN, Valor: retornoIzq.Valor.(bool) || retornoDer.Valor.(bool)}
+
+			} else {
+				desc := fmt.Sprintf("%v con %v", interfaces.GetType(retornoIzq.Tipo), interfaces.GetType(retornoDer.Tipo))
+				err.NewError("Tipos incompatibles Logicos (||) "+desc, env.(environment.Environment).Nombre, p.Line, p.Column)
+			}*/
 
 		}
 	case "!":

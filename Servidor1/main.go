@@ -51,6 +51,19 @@ func createReport() string {
 	</thead>
 	<tbody>`
 
+	/*	var rep string = `<table class="table table-striped table-dark">
+		<thead>
+			<tr>
+			<th scope="col">No.</th>
+			<th scope="col">Descripción</th>
+			<th scope="col">Ámbito</th>
+			<th scope="col">Línea</th>
+			<th scope="col">Columna</th>
+			<th scope="col">Fecha y hora</th>
+			</tr>
+		</thead>
+		<tbody>`*/
+
 	var conte string = ""
 	for i := 0; i < len(environment.ErrorList); i++ {
 		err_val := environment.ErrorList[i]
@@ -66,6 +79,8 @@ func createReport() string {
 	</table>`
 
 	rep = rep + conte
+	//limpiar la lista de errores
+	environment.ErrorList = nil
 
 	return rep
 }
@@ -157,7 +172,7 @@ func (this *TreeShapeListener) ExitStart(ctx *parser.StartContext) {
 	globalEnv = environment.NewEnvironment("GLOBAL", nil)
 
 	console.Console = ""
-	environment.ErrorList = nil
+	//environment.ErrorList = nil
 	//environment.ErrorList = arrayList.New()
 
 	List_Funcs := arrayList.New()
@@ -167,8 +182,7 @@ func (this *TreeShapeListener) ExitStart(ctx *parser.StartContext) {
 		if reflect.TypeOf(s) == reflect.TypeOf(instructionExpre.Function{}) {
 
 			List_Funcs.Add(s.(instructionExpre.Function))
-			//s.(interfaces.Instruction).Ejecutar(globalEnv)
-			//globalEnv.SaveFuncion(s.(instructionExpre.Function).Id, "s", 1, 2)
+
 			globalEnv.SaveFuncion(s.(instructionExpre.Function).Id, s, s.(instructionExpre.Function).Line, s.(instructionExpre.Function).Column)
 
 		}
@@ -177,9 +191,6 @@ func (this *TreeShapeListener) ExitStart(ctx *parser.StartContext) {
 			s.(interfaces.Instruction).Ejecutar(globalEnv)
 		}
 
-		//	if reflect.TypeOf(s) == reflect.TypeOf(modules.Module{}) {
-		//		s.(interfaces.Instruction).Ejecutar(globalEnv)
-		//	}
 	}
 
 	//corriendo main
@@ -194,7 +205,7 @@ func (this *TreeShapeListener) ExitStart(ctx *parser.StartContext) {
 		}
 	}
 
-	fmt.Println("-------------------------------")
+	fmt.Println("--------------OUTPUT-----------------")
 	fmt.Println(console.Console)
 
 	//fmt.Println("globalEnv.TablaModules:", len(globalEnv.TablaModules))
@@ -221,7 +232,7 @@ func (this *TreeShapeListener) ExitStart(ctx *parser.StartContext) {
 
 func main() {
 
-	t, err := template.ParseFiles("./client/index.html")
+	t, err := template.ParseFiles("../cliente/index.html")
 
 	//POST
 	http.HandleFunc("/data", func(res http.ResponseWriter, req *http.Request) {
@@ -268,5 +279,10 @@ func main() {
 	if err != nil {
 		return
 	}
+
+	//limpiar lista de symbolos
+	//environment.SymbolList = nil
+	//limpiar lista de errores
+	//	environment.ErrorList = nil
 
 }

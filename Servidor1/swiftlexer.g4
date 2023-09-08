@@ -22,7 +22,6 @@ USIZE: 'usize';
 IF:       'if';
 ELSE:       'else';
 WHILE:  'while';
-LOOP:   'loop';
 FOR:    'for';
 IN:     'in';
 
@@ -60,9 +59,8 @@ NEW:        'new()';
 CAPF:       'capacity()';
 CLONE:      'clone()';
 ABS:        'abs()';
-//SQRT:       'sqrt()';
 PUSH:       'append';
-CONTAINS:   'contains';
+
 
 INSERT:     'insert';
 REMOVE:     'remove';
@@ -70,7 +68,6 @@ REMOVE:     'remove';
 MODULO:        'mod';
 
 //funciones
-PUBLIC:     'pub';
 TYPETHEN:      '->';
 
 FN:     'func';
