@@ -15,7 +15,7 @@ type Len struct {
 	Column int
 }
 
-func NewLen(Expre interfaces.Expresion, line int, column int) Len {
+func NewCount(Expre interfaces.Expresion, line int, column int) Len {
 
 	exp := Len{Expre, line, column}
 	return exp
@@ -28,7 +28,7 @@ func (p Len) EjecutarValor(env interface{}) interfaces.Symbol {
 
 	if retornoExp.Tipo == interfaces.ARRAY || retornoExp.Tipo == interfaces.VECTOR {
 
-		//fmt.Println("---      reflect.TypeOf(retornoExp)..Valor", reflect.TypeOf(retornoExp.Valor))
+		//fmt.Println("---      reflect.TypeOf(retornoExp)..Valor", reflect.TypeOf(retornoExp.Valor))nterfaces.Symbol{Id: "", Tipo: interfaces.INTEGER, Valor: retornoExp.Valor.(*arrayList.List).Len()}
 		return interfaces.Symbol{Id: "", Tipo: interfaces.INTEGER, Valor: retornoExp.Valor.(*arrayList.List).Len()}
 
 	} else {

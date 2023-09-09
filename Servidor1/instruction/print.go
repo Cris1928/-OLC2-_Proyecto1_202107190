@@ -43,30 +43,24 @@ func (p Imprimir) PrintStruct(structSymbol interfaces.Symbol) string {
 func (p Imprimir) PrintArray(env interface{}, arrlist *arrayList.List) string {
 
 	array_format := ""
-	//fmt.Println("00000 arrlist: ", arrlist)
-	//fmt.Println("22222 arrlistLen(): ", arrlist.Len())
 
 	array_format = array_format + "["
-	//for _, arr := range arrlist.ToArray() {
+
 	for i := 0; i < arrlist.Len(); i++ {
 		arr := arrlist.GetValue(i)
-		//fmt.Println("00000 arr 			: ", arr)
-		//fmt.Println("00000	type				: ", interfaces.GetType(arr.(interfaces.Symbol).Tipo))
 
 		expre_print := arr.(interfaces.Symbol)
 
 		if arr.(interfaces.Symbol).Tipo == interfaces.ARRAY || arr.(interfaces.Symbol).Tipo == interfaces.VECTOR {
-			//fmt.Println("	1111111expre_print.Tipo: 				", interfaces.GetType(expre_print.Tipo) )
 
 			var coma = ""
 			if i < (arrlist.Len() - 1) {
 				coma = ", "
 			}
 			getres := p.PrintArray(env, arr.(interfaces.Symbol).Valor.(*arrayList.List)) + coma
-			//fmt.Println("	1getresgetresgetres: 				", getres )
+
 			array_format = array_format + getres
 		} else {
-			//fmt.Println("	1111111expre_print.Valor else: 				", expre_print.Valor )
 
 			var coma = ""
 			if i < (arrlist.Len() - 1) {
@@ -80,18 +74,14 @@ func (p Imprimir) PrintArray(env interface{}, arrlist *arrayList.List) string {
 
 		}
 	}
-	array_format = array_format + "]" //+ ", "
-	//fmt.Println("-array_format-", array_format)
+	array_format = array_format + "]"
+
 	return array_format
 }
 
 func (p Imprimir) Ejecutar(env interface{}) interface{} {
 
-	//format := fmt.Sprintf("%v", p.Values.GetValue(0).(interfaces.Expression).EjecutarValor(ast, env).Valor)
-
 	if p.L_Expresion.Len() > 1 {
-
-		//format := fmt.Sprintf("%v", p.Values.GetValue(0).(interfaces.Expression).EjecutarValor(ast, env).Valor)
 
 		var result interfaces.Symbol
 		result = p.L_Expresion.GetValue(0).(interfaces.Expresion).EjecutarValor(env)
@@ -117,13 +107,10 @@ func (p Imprimir) Ejecutar(env interface{}) interface{} {
 
 		for _, exp := range List_Expresion.ToArray() {
 			expre_print := exp.(interfaces.Expresion).EjecutarValor(env)
-			//fmt.Println("-----expre_print.Tipo: ", interfaces.GetType(expre_print.Tipo) )
-			//fmt.Println("-----reflect.TypeOf(expre_print.Valor: ", reflect.TypeOf(expre_print.Valor) )
 
 			if expre_print.Tipo == interfaces.ARRAY || expre_print.Tipo == interfaces.VECTOR {
 				str_arr := p.PrintArray(env, expre_print.Valor.(*arrayList.List))
-				///////////str_arr = strings.ReplaceAll(str_arr, "][", "], [")
-				//fmt.Println("str_arr: ", str_arr)
+
 				format_str = format_str + "{:?}"
 
 				format_str = strings.Replace(format_str, "{:?}", str_arr, 1)
@@ -142,15 +129,12 @@ func (p Imprimir) Ejecutar(env interface{}) interface{} {
 		printcon := format_str + "\n"
 		console.Console += printcon
 		return nil
-		/*printcon := fmt.Sprintf("%v", result.Valor) + "\n"
-		console.Console += printcon*/
+
 	}
 
 	var result interfaces.Symbol
 	result = p.L_Expresion.GetValue(0).(interfaces.Expresion).EjecutarValor(env)
 
-	////fmt.Println("-result.Tipo: ", interfaces.GetType(result.Tipo))
-	//fmt.Println(result.Valor)
 	printcon := fmt.Sprintf("%v", result.Valor) + "\n"
 	console.Console += printcon
 

@@ -10,9 +10,8 @@ import (
 )
 
 type AssignmentVec struct {
-	Id    string
-	index interfaces.Expresion
-	//Idstruct  string
+	Id              string
+	index           interfaces.Expresion
 	ListAccesStruct *arrayList.List
 	Expresion       interfaces.Expresion
 	Line            int
@@ -32,7 +31,6 @@ func (p AssignmentVec) Ejecutar(env interface{}) interface{} {
 	}
 	if result_mut.IsMut == false {
 
-		//desc := fmt.Sprintf("se esperaba %v se tiene %v", interfaces.GetType(p.Tipo), interfaces.GetType(result.Tipo))
 		err.NewError("La variable "+p.Id+" es inmutable, no puede cambiar valor", env.(environment.Environment).Nombre, p.Line, p.Column)
 		return nil
 	}
@@ -52,8 +50,6 @@ func (p AssignmentVec) Ejecutar(env interface{}) interface{} {
 			return nil
 		}
 
-		//tempValue.(*arrayList.List).GetValue(index).(interfaces.Symbol)
-		/////fmt.Println("---reflect.TypeOf(result_mut.valor)", reflect.TypeOf(result_mut.Valor.(interfaces.Symbol).Valor))
 		valvec := result_mut.Valor.(interfaces.Symbol).Valor.(*arrayList.List)
 
 		objec := valvec.GetValue(index.Valor.(int)).(interfaces.Symbol)
@@ -69,12 +65,6 @@ func (p AssignmentVec) Ejecutar(env interface{}) interface{} {
 		env.(environment.Environment).UpdateStructVector(p.ListAccesStruct, result, p.Line, p.Column, objec.Valor.(map[string]interfaces.Symbol))
 
 		/*if variable, ok := objec.Valor.(map[string]interfaces.Symbol)[p.Idstruct]; ok {
-
-			fmt.Println("---variable", variable)
-			fmt.Println("***reflect.TypeOf(variable)", reflect.TypeOf(variable))
-			fmt.Println("---variable.Valor", variable.Valor)
-			variable.Valor = result.Valor
-			fmt.Println("222 variable.Valor", variable.Valor)
 
 			objec.Valor.(map[string]interfaces.Symbol)[p.Idstruct] = variable
 			//objec.Valor[p.Idstruct] = value

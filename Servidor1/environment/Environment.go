@@ -293,9 +293,6 @@ func (env Environment) UpdateStruct(lis_id *arrayList.List, value interfaces.Sym
 					}
 				} else /*if  tmpDic[s.(string)].IsMut*/ {
 
-					//fmt.Println("		atri s ", s)
-					//fmt.Println("---2-variable.IsMut", tmpDic[s.(string)].IsMut, "-", tmpDic[s.(string)])
-					//fmt.Println("Tipo", tmpDic[s.(string)].Tipo)
 					if variable.Tipo != value.Tipo {
 
 						desc := fmt.Sprintf("se esperaba '%v' se tiene '%v'", interfaces.GetType(variable.Tipo), interfaces.GetType(value.Tipo))
@@ -459,12 +456,11 @@ func (env Environment) IsFunction() bool {
 			tmpEnv = tmpEnv.father.(Environment)
 		}
 	}
-	//fmt.Println("la sentencia tiene que estar dentro de un ciclo")
+
 	return false
 }
 
-/********gunciones*************/
-//func (env Environment) SaveFuncion(id string, value interfaces.Symbol, tipo interfaces.TipoExpresion, isMut bool, Line int, Column int, nameentorno string, tipos *arrayList.List) {
+// func (env Environment) SaveFuncion(id string, value interfaces.Symbol, tipo interfaces.TipoExpresion, isMut bool, Line int, Column int, nameentorno string, tipos *arrayList.List) {
 func (env Environment) SaveFuncion(id string, symb interface{}, Line int, Column int /*, tipo interfaces.TipoExpresion, isMut bool, nameentorno string, tipos *arrayList.List*/) {
 	if _, ok := env.TablaFunciones[id]; ok {
 

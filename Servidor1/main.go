@@ -8,10 +8,15 @@ import (
 	"Servidor1/instructionExpre"
 	"Servidor1/interfaces"
 	"Servidor1/parser"
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"html/template"
+	"io"
 	"net/http"
+	"os"
 	"reflect"
+	"strings"
 
 	"github.com/antlr4-go/antlr/v4"
 	arrayList "github.com/colegno/arraylist"
@@ -209,10 +214,10 @@ func (this *TreeShapeListener) ExitStart(ctx *parser.StartContext) {
 	fmt.Println(console.Console)
 
 	//fmt.Println("globalEnv.TablaModules:", len(globalEnv.TablaModules))
-	if len(globalEnv.TablaModules) == 0 {
+	/*	if len(globalEnv.TablaModules) == 0 {
 		environment.NewError("No se encontró ninguna definición de módulo ", globalEnv.Nombre, 0, 0)
 
-	}
+	}*/
 	//////ini base de datos report
 	baseconte = ""
 	tableconte = ""
@@ -284,5 +289,72 @@ func main() {
 	//environment.SymbolList = nil
 	//limpiar lista de errores
 	//	environment.ErrorList = nil
+
+}
+func CrearCST(input string) string {
+
+	// replace the " with \"
+	input = strings.ReplaceAll(input, "\"", "\\\"")
+
+	url := "http://lab.antlr.org/parse/"
+
+	// payload
+	payload := []byte(`{"grammar": "parser grammar ExprParser;\r\noptions { tokenVocab=ExprLexer; }\r\n\r\n// ? -> uno o nada\r\n// * -> cero o mas\r\n// + -> uno o mas\r\n\r\nstart: block EOF;\r\n\r\nblock: (stmts)\r\n;\r\n\r\nstmts: declaracion (PT_COMA)?\r\n     | declaracion_vector (PT_COMA)?\r\n     | asignacion (PT_COMA)?\r\n     | funciones_vector (PT_COMA)?\r\n     | ifstmt\r\n     | whilestmt\r\n     | forstmt\r\n     | switchstmt\r\n     | declaracion_funcion\r\n     | llamada_funciones\r\n     | transferenciastmt (PT_COMA)?\r\n     | guardstmt\r\n     | printstmt (PT_COMA)?\r\n;\r\n\r\n// SENTENCIAS DE TRANSFERENCIA\r\ntransferenciastmt: BREAK                                            #TransferenciaBreak\r\n                 | CONTINUE                                         #TransferenciaContinue\r\n                 | RETURN (expr)?                                   #TransferenciaReturn\r\n;\r\n\r\n\r\n// VECTORES\r\ndeclaracion_vector: tipo_declaracion PRIM_ID ':' '[' tipo ']' '=' definicion_vector #DecVectorGeneral\r\n                  | tipo_declaracion PRIM_ID ':' tipo '=' PRIM_ID '[' expr ']'      #DecVectorAccesoUnElemt\r\n;\r\ndefinicion_vector: '[' expr (',' expr) ']'      \r\n                 | '[' ']'         \r\n                 | PRIM_ID\r\n;\r\n\r\nfunciones_vector: PRIM_ID '.' APPEND '(' expr ')'                   #FuncVectorAppend\r\n                | PRIM_ID '.' REMOVELAST '()'                       #FuncVectorRemoveLast\r\n                | PRIM_ID '.' REMOVE '(' 'at:' expr ')'             #FuncVectorRemove\r\n;\r\n \r\n\r\ndeclaracion: tipo_declaracion PRIM_ID PT_PUNTO tipo OP_IGUAL expr   #ValorTipoDeclaracion // var value: String = \"Hola\"\r\n           | tipo_declaracion PRIM_ID PT_PUNTO tipo INTERROGRACION  #TipoDeclaracion      // var value: String?\r\n           | tipo_declaracion PRIM_ID OP_IGUAL expr                 #ValorDeclaracion     // var value = \"hola\"\r\n;\r\n\r\ntipo_declaracion: (DECLARACION_VAR | DECLARACION_LET);\r\n\r\nasignacion: PRIM_ID op=(INCREMENTO|DECREMENTO) expr                 #InstrDecrementoIncremento\r\n          | PRIM_ID OP_IGUAL expr                                   #InstrAsignacionValor\r\n;\r\n\r\n\r\n//          FUNCIONES\r\ndeclaracion_funcion: FUNC PRIM_ID '(' lista_parametros? ')' ('->' tipo)? '{' block '}'            #FuncDecMetodo\r\n;\r\nlista_parametros: (PRIM_ID|GUION_BAJO)? PRIM_ID ':' tipo (varios_parametros);\r\nvarios_parametros: ',' (PRIM_ID|GUION_BAJO)? PRIM_ID ':' tipo;\r\n\r\nllamada_funciones: PRIM_ID '(' lista_param_llamado? ')';\r\nlista_param_llamado: (PRIM_ID ':')? expr (varios_param_llamado);\r\nvarios_param_llamado: ',' (PRIM_ID ':')? expr;\r\n\r\n\r\n//          SENTENCIAS DE CONTROL\r\n//                  IF\r\nifstmt: IF expr '{' block '}' ELSE ifstmt                           #SentenciaIfElse\r\n      | IF expr '{' block '}' (ELSE '{' block '}')?                 #SentenciaIf\r\n;\r\n\r\n//                  SWITCH\r\nswitchstmt: SWITCH expr '{' (dec_case)* (dec_default)? '}';\r\ndec_case: CASE expr PT_PUNTO block;\r\ndec_default: DEFAULT PT_PUNTO block;\r\n\r\n//                  WHILE\r\nwhilestmt: WHILE expr '{' block '}';\r\n\r\n//                  FOR\r\nforstmt: FOR identifier=(PRIM_ID|'_') IN (expr|rango) '{' block '}';\r\nrango: left=expr '...' right=expr;\r\n\r\n// GUARD\r\nguardstmt: GUARD expr ELSE '{' block transferenciastmt'}';\r\n\r\n\r\n// PRINT\r\nprintstmt: PRINT '(' expr ')'                                       #InstrPrint\r\n         | PRINT '(' expr (',' expr)* ')'                           #InstrPrintConcatenado\r\n;\r\n\r\n\r\n// EXPRESIONES\r\nexpr\r\n    : op=(OP_NOT|OP_RESTA) right=expr                               #ExprOperacionesLogicasNegacion\r\n    | left=expr op=(OP_MULT|OP_DIV|OP_MODULO) right=expr            #ExprOperacionesAritmeticasMultDivMod\r\n    | left=expr op=(OP_SUMA|OP_RESTA) right=expr                    #ExprOperacionesAritmeticasSumaRest\r\n    // OPERACIONES RELACIONALES\r\n    | left=expr op=(OP_MAYOR_O_IGUALQ|OP_MAYORQ) right=expr         #ExprOperacionesRelacionalesMayIgualMayQ\r\n    | left=expr op=(OP_MENOR_O_IGUALQ|OP_MENORQ) right=expr         #ExprOperacionesRelacionalesMenIgualMenQ\r\n    // OPERACIONES COMPARATIVAS\r\n    | left=expr op=(OP_IGUALIGUAL|OP_NOIGUAL) right=expr            #ExprOperacionesComparativas\r\n    // OPERACIONES LOGICAS\r\n    | left=expr op=OP_AND right=expr                                #ExprOperacionesLogicasAnd\r\n    | left=expr op=OP_OR right=expr                                 #ExprOperacionesLogicasOr\r\n    | llamada_funciones                                             #ExprLlamadaFunc\r\n    | '(' expr ')'                                                  #ExprParentesis\r\n    // EXPRESIONES DE UN VECTOR\r\n    | PRIM_ID '.' ISEMPTY                                           #ExprVectorIsEmpty\r\n    | PRIM_ID '.' COUNT                                             #ExprVectorCount\r\n    // TIPOS PRIMITIVOS\r\n    | PRIM_DIGITO                                                   #ExprDigito\r\n    | PRIM_ID                                                       #ExprId\r\n    | PRIM_CADENA                                                   #ExprCadena\r\n    | (TRUE | FALSE)                                                #ExprBool\r\n    | NIL                                                           #ExprNil\r\n;\r\n\r\ntipo: (INT | FLOAT | STRING | BOOL | CHAR);",
+	"input": "` + input + `", 
+	"lexgrammar": "lexer grammar ExprLexer;\r\n\r\n// TIPOS PRIMITIVOS\r\nINT: 'Int';\r\nFLOAT: 'Float';\r\nSTRING: 'String';\r\nBOOL: 'Bool';\r\nCHAR: 'Character';\r\nNIL: 'nil';\r\nTRUE: 'true';\r\nFALSE: 'false';\r\n\r\n// DECLARACIONES\r\nDECLARACION_VAR: 'var';\r\nDECLARACION_LET: 'let';\r\nPT_COMA: ';';\r\nPT_PUNTO: ':';\r\nINTERROGRACION: '?';\r\n\r\nCORCHETE_I:'[';\r\nCORCHETE_D:']';\r\nCOMA:',';\r\nPARENT_I:'(';\r\nPARENT_D:')';\r\nAT:'at:';\r\nLLAVE_I:'{';\r\nLLAVE_D:'}';\r\nPARENTESIS:'()';\r\nFLECHA_MAY:'->';\r\nTRES_PT:'...';\r\nPUNTO:'.';\r\n\r\n\r\n// INSTRUCCIONES\r\nINCREMENTO: '+=';\r\nDECREMENTO: '-=';\r\n\r\n\r\n// FUNCIONES\r\nFUNC: 'func';\r\nGUION_BAJO: '';\r\n\r\n\r\n// FUNCIONES DE VECTORES\r\nAPPEND:'append';\r\nREMOVELAST:'removeLast';\r\nREMOVE:'remove';\r\nISEMPTY:'isEmpty';\r\nCOUNT:'count';\r\n\r\n\r\n// OPERADORES ARITMETICOS\r\nOP_IGUAL: '=';\r\nOP_SUMA: '+';\r\nOP_RESTA: '-';\r\nOP_MULT: '';\r\nOP_DIV: '/';\r\nOP_MODULO: '%';\r\n//    |       COMPARACION\r\nOP_IGUALIGUAL: '==';\r\nOP_NOIGUAL: '!=';\r\n//    |       RELACIONES\r\nOP_MAYORQ: '>';\r\nOP_MAYOR_O_IGUALQ: '>=';\r\nOP_MENORQ: '<';\r\nOP_MENOR_O_IGUALQ: '<=';\r\n//    |       LOGICOS\r\nOP_AND: '&&';\r\nOP_OR: '||';\r\nOP_NOT: '!';\r\n\r\n\r\n// SENTENCIAS DE CONTROL\r\nIF: 'if';\r\nELSE: 'else';\r\n\r\nSWITCH: 'switch';\r\nCASE: 'case';\r\nDEFAULT: 'default';\r\nPRINT: 'print';\r\n\r\nWHILE: 'while';\r\n\r\nFOR: 'for';\r\nIN: 'in';\r\n\r\n\r\n// GUARD\r\nGUARD: 'guard';\r\n\r\n\r\n\r\n// SENTENCIAS DE TRASFERENCIA\r\nBREAK: 'break';\r\nCONTINUE: 'continue';\r\nRETURN: 'return';\r\n\r\n\r\n// EXPRESIONES REGULARES\r\nPRIM_DIGITO: [0-9]+ ('.'[0-9]+)?;\r\nPRIM_CADENA: '\"'~[\"]'\"';\r\nPRIM_ID: [a-zA-Z][a-zA-Z0-9_];\r\n\r\n// SKIP\r\nESPACIO_BLANCO: [ \\\\\\r\\n\\t]+ -> skip;\r\nCOMENTARIO_LINEA: '//' ~[\\r\\n] -> skip;\r\nCOMENTARIO_MULTI: '/' .? '*/' -> skip;\r\n\r\nfragment\r\nESC_SEQ\r\n    :   '\\\\' ('\\\\'|'@'|'['|']'|'.'|'#'|'+'|'-'|'!'|':'|' ')\r\n    ;\r\n",
+	"start": "start"}`)
+
+	// request
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payload))
+
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		return ""
+	}
+	req.Header.Set("Content-Type", "application/json") // Set the appropriate content type
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Error sending request:", err)
+		return ""
+	}
+	defer resp.Body.Close()
+
+	fmt.Println("Response Status:", resp.Status)
+
+	// parse the response body to json
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Error reading body:", err)
+		return ""
+	}
+
+	// create a map to store the json
+	var data map[string]interface{}
+
+	// unmarshal the json
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		fmt.Println("Error unmarshalling json:", err)
+		return ""
+	}
+
+	// fmt.Println("Response Body:", data)
+
+	result := data["result"].(map[string]interface{})
+
+	// fmt.Println("Response Body:", result["svgtree"])
+
+	// create the file
+	err = os.WriteFile("cst.svg", []byte(result["svgtree"].(string)), 0644)
+	if err != nil {
+		fmt.Println("Error creating file:", err)
+		return ""
+	}
+
+	fmt.Println("File created successfully")
+
+	return result["svgtree"].(string)
 
 }

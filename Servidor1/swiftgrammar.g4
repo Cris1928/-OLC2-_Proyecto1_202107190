@@ -32,6 +32,17 @@ instrucciones returns [*arrayList.List l]
     }
 ;
 
+/*
+instrucciones returns [*arrayList.List l]
+  @init{
+    $l =  arrayList.New()
+  }
+  : e +=instruccion*  {
+      listInt := localctx.(*InstruccionesContext).GetE()
+      		
+          //fmt.Printf("tipo %T",localctx.(*InstruccionesContext).GetE())
+    }
+; */
 
 
 listaglobal returns [*arrayList.List lista]
@@ -96,16 +107,15 @@ funcion   returns [ interfaces.Instruction  instr]
 @init{ listParams :=  arrayList.New() }
     : fn_main             {$instr =  $fn_main.instr}
     | FN  ID '(' ')' '->' tipos_var bloque_inst    { $instr = instructionExpre.NewFunction($ID.text,listParams,$bloque_inst.l, $tipos_var.tipo, $ID.line, $ID.pos, "" )}
- /*   | FN  ID '(' ')' '->' VECN '<' idob=ID '>' bloque_inst    { $instr = instructionExpre.NewFunction($ID.text,listParams,$bloque_inst.l, interfaces.VOID, $ID.line, $ID.pos,  $idob.text )}
-  */  | FN  ID '(' ')' '->' idob=ID bloque_inst    { $instr = instructionExpre.NewFunction($ID.text,listParams,$bloque_inst.l, interfaces.VOID, $ID.line, $ID.pos,  $idob.text )}
+   | FN  ID '(' ')' '->' idob=ID bloque_inst    { $instr = instructionExpre.NewFunction($ID.text,listParams,$bloque_inst.l, interfaces.VOID, $ID.line, $ID.pos,  $idob.text )}
 
     | FN  ID '(' ')' bloque_inst                   { $instr = instructionExpre.NewFunction($ID.text,listParams,$bloque_inst.l, interfaces.VOID, $ID.line, $ID.pos, "" )}
     | FN  ID '(' params_declar ')' bloque_inst     { $instr = instructionExpre.NewFunction($ID.text,$params_declar.lista,$bloque_inst.l, interfaces.VOID, $ID.line, $ID.pos, "" )}
 
     | FN  ID '('  params_declar ')' '->' tipos_var bloque_inst   { $instr = instructionExpre.NewFunction($ID.text,$params_declar.lista, $bloque_inst.l,$tipos_var.tipo, $ID.line, $ID.pos, "" )}
-/*  | FN  id=ID '('  params_declar ')' '->' VECN '<' idob=ID '>' bloque_inst   { $instr = instructionExpre.NewFunction($id.text,$params_declar.lista, $bloque_inst.l, interfaces.VECTOR, $id.line, $id.pos, $idob.text  )}
-    | FN  id=ID '('  params_declar ')' '->' VECN '<' tipos_var '>' bloque_inst   { $instr = instructionExpre.NewFunction($id.text,$params_declar.lista, $bloque_inst.l, interfaces.VECTOR, $id.line, $id.pos, ""  )}
-  */| FN  id=ID '('  params_declar ')' '->' idob=ID bloque_inst   { $instr = instructionExpre.NewFunction($id.text,$params_declar.lista, $bloque_inst.l, interfaces.VOID, $id.line, $id.pos, $idob.text  )}
+  | FN  id=ID '('  params_declar ')' '->'  '[' idob=ID ']' bloque_inst   { $instr = instructionExpre.NewFunction($id.text,$params_declar.lista, $bloque_inst.l, interfaces.VECTOR, $id.line, $id.pos, $idob.text  )}
+    | FN  id=ID '('  params_declar ')' '->' '[' tipos_var ']' bloque_inst   { $instr = instructionExpre.NewFunction($id.text,$params_declar.lista, $bloque_inst.l, interfaces.VECTOR, $id.line, $id.pos, ""  )}
+  | FN  id=ID '('  params_declar ')' '->' idob=ID bloque_inst   { $instr = instructionExpre.NewFunction($id.text,$params_declar.lista, $bloque_inst.l, interfaces.VOID, $id.line, $id.pos, $idob.text  )}
 ;
 
 
@@ -154,12 +164,6 @@ declar_parametros returns [interfaces.Instruction in_dec]
 ;
 
 
-//funciones
-/*fn_main returns[interfaces.Instruction instr]
-@init{ listParams:= arrayList.New() }
-    : FN MAIN '(' ')' bloque_inst
-    { $instr = instructionExpre.NewFunction("main",listParams,$bloque_inst.l, interfaces.VOID, $MAIN.line, $MAIN.pos, "" )}
-;*/
 
 fn_main returns[interfaces.Instruction instr]
 @init{ listParams:= arrayList.New() }
@@ -223,7 +227,7 @@ instruccion_dentro returns [interfaces.Instruction instr]
 
 /*vector funciones*/
 appendVec returns [interfaces.Instruction instr]
-    : ID '.' PUSH '('val=expression')' {$instr = instruction.NewPush($ID.text, $val.p, $ID.line, $ID.pos  )}
+    : ID '.' APPEND '('val=expression')' {$instr = instruction.NewPush($ID.text, $val.p, $ID.line, $ID.pos  )}
     | ID '.' INSERT '(' val1=expression ',' val2=expression ')' { $instr = instruction.NewInsert($ID.text, $val1.p, $val2.p, $ID.line, $ID.pos) }
 ;
 newStruct returns[interfaces.Instruction str]
@@ -287,27 +291,7 @@ callFunction returns [interfaces.Instruction instr, interfaces.Expresion p]
                         $p = instructionExpre.NewCallFunction($ID.text, $listParamsCall.l_e, $ID.line, $ID.pos )
                     }
 ;
-/* 
-//llamada a modulo
-// PENDENTEEEEEEEEEEEEEEEEEE ENTREADA
-callModulo returns [interfaces.Instruction instr, interfaces.Expresion p]
-    : listModulec expression {
-        $p = instructionExpre.NewModuleAccess($listModulec.lm, $expression.p, $listModulec.start.GetLine(),$listModulec.start.GetColumn() )
-        $instr = instructionExpre.NewModuleAccess($listModulec.lm, $expression.p, $listModulec.start.GetLine(),$listModulec.start.GetColumn() )
-    }
-;
 
-listModulec returns [*arrayList.List lm]
-@init{  $lm = arrayList.New()   }
-    : list = listModulec ID '::'    {
-                                $list.lm.Add($ID.text)
-                                $lm = $list.lm
-                            }
-    | ID '::'   {
-                    $lm.Add($ID.text)
-                }
-;*/
-//PENDIENTEEEEEEEEEEEESALIDA finally
 
 returnFun returns [interfaces.Instruction instr]
     : RETURN                { $instr = instructionExpre.NewReturn(nil, $RETURN.line, $RETURN.pos )}
@@ -400,12 +384,7 @@ declaracion returns [interfaces.Instruction instr]/*  */
     | isVar=es_varr id=ID ':'   '[' idob=ID ']' '=' CORIZQ CORDER  {
                         $instr = instruction.NewVectorDeclaration($id.text, interfaces.STRUCT, nil, $isVar.mut, $id.line, $id.pos, nil, $idob.text)
                     }
-   /* | isVar=es_var id=ID ':' VECN '<' tipos_var '>' '=' VECN '::' CAPACITY '('expression')' {
-                        $instr = instruction.NewVectorDeclaration($id.text, $tipos_var.tipo, $expression.p, $isVar.mut, $VECN.line, $VECN.pos, nil, "")
-                    }
-    | isVar=es_var id=ID ':' VECN '<' idob=ID '>' '=' VECN '::' CAPACITY '('expression')' {
-                        $instr = instruction.NewVectorDeclaration($id.text, interfaces.NULL, $expression.p, $isVar.mut, $VECN.line, $VECN.pos, nil, $idob.text)
-                    }*/
+ 
 
     | isVar=es_varr id=ID ':'  '[' idob=ID ']' '=' expression {
                         $instr = instruction.NewVectorDeclaration($id.text, interfaces.NULL, nil, $isVar.mut, $id.line, $id.pos, $expression.p, $idob.text)
@@ -465,12 +444,10 @@ asignacion returns [interfaces.Instruction instr]
     | l_AccessStruct '=' expression { $instr = instruction.NewAssignmentStruct($l_AccessStruct.l, $expression.p, $l_AccessStruct.start.GetLine(),$l_AccessStruct.start.GetColumn()) }
 
     /*vector asignacion*/
-    //| id=ID '[' index=expression ']' '.'idstr=ID'=' val=expression {$instr = instruction.NewAssignmentVec($id.text, $index.p, $idstr.text, $val.p, $id.line, localctx.(*AsignacionContext).GetId().GetColumn() )}
+   
     | id=ID '[' index=expression ']' '.' l_AccessStruct '=' val=expression {$instr = instruction.NewAssignmentVec($id.text, $index.p, $l_AccessStruct.l, $val.p, $id.line, localctx.(*AsignacionContext).GetId().GetColumn() )}
 
-  /*  | id=ID '=' VECN '::' CAPACITY '('expression')' {
-                        $instr = instruction.NewAssignmentVeca p($id.text, $expression.p, $id.line, $id.pos) NewIncrement
-                }*/
+
 
     | id=ID '+=' expression {$instr = instruction.NewIncrement($id.text,$expression.p, $id.line, localctx.(*AsignacionContext).GetId().GetColumn())}
 
@@ -596,8 +573,7 @@ matchbrazo returns [instructionExpre.BrazoMatch brazo]
     : CASE listaOpciones th=':' bloque_inst  { $brazo = instructionExpre.NewBrazoMatch($listaOpciones.lisop, $bloque_inst.l, nil, $th.line, localctx.(*MatchbrazoContext).GetTh().GetColumn(), nil ) }
     | CASE listaOpciones th=':' instruccion_dentro  { $brazo = instructionExpre.NewBrazoMatch($listaOpciones.lisop, nil,  $instruccion_dentro.instr, $th.line, localctx.(*MatchbrazoContext).GetTh().GetColumn(), nil ) }
     
-    //: listaOpciones '=>' ((bloque_inst | instruccion) ',')? { $instr = expresion.NewArray($listaOpciones.lisop, $bloque_inst.l ) }
-    //| listaOpciones '=>' (expression ',')? { $instr = expresion.NewArray($listaOpciones.lisop, $expression.p) }
+  
 ;
 
 matchbrazo_exp returns [instructionExpre.BrazoMatch brazo]
@@ -645,18 +621,10 @@ tipos_var returns[interfaces.TipoExpresion tipo]
     | T_ARRAY INTERROG* {$tipo = interfaces.ARRAY}
     | T_VECTOR INTERROG* {$tipo = interfaces.VECTOR}
 
-  //  | USIZE { $tipo = interfaces.INTEGER }
-    
-    //| VOIDTYPE  {$tipo = interfaces.VOID}
+
 ;
 
-/*instruccion returns [interfaces.Instruction instr]
-  : CONSOLE '.' LOG PARIZQ expression PARDER ';' {$instr = instruction.NewImprimir($expression.p)}
-  | P_NUMBER id=ID '=' expression ';'{$instr = instruction.NewDeclaration($id.text,interfaces.INTEGER,$expression.p)}
-  | P_IF PARIZQ expression PARDER LLAVEIZQ instrucciones LLAVEDER  {$instr = instruction.NewIf($expression.p, $instrucciones.l)}
-  | P_WHILE PARIZQ expression PARDER LLAVEIZQ instrucciones LLAVEDER  {$instr = instruction.NewWhile($expression.p, $instrucciones.l)}
-  
-;*/
+
 
 expression returns[interfaces.Expresion p]
     : expr_arit    {$p = $expr_arit.p}
@@ -664,28 +632,19 @@ expression returns[interfaces.Expresion p]
 
     /*rango for */
     | e_ini=expression '.''.''.' e_fin=expression { $p = expresion.NewRangeF($e_ini.p, $e_fin.p, $e_ini.start.GetLine(),$e_ini.start.GetColumn() ) }
-    //| exp=expression '.' CLONE { $p = expresion.NewClone($exp.p, $exp.start.GetLine(), $exp.start.GetColumn() ) }
-   // | exp=expression '.' ABS { $p = expresion.NewAbs($exp.p, $exp.start.GetLine(), $exp.start.GetColumn() ) }
-    //| exp=expression '.' SQRT { $p = expresion.NewSqrt($exp.p, $exp.start.GetLine(), $exp.start.GetColumn() ) }
-    //| exp=expression TO_STRING { $p = expresion.NewToString($exp.p, $exp.start.GetLine(), $exp.start.GetColumn() ) }
-    //| exp=expression TO_OWNED { $p = expresion.NewToString($exp.p, $exp.start.GetLine(), $exp.start.GetColumn() ) }
+ 
 ;
 
-/*len_f returns[interfaces.Expresion p]
-    : exp=expression '.' LEN {$p = expresion.NewLen($exp.p, $exp.start.GetLine(), $exp.start.GetColumn()  )}
-;*/
+
 
 expr_arit returns[interfaces.Expresion p]
     : op='-' opU = expr_arit {$p = expresion.NewOperacion($opU.p,"-",nil,true, $op.line, localctx.(*Expr_aritContext).GetOp().GetColumn())}
     
-    //pow
-   // | T_NUMBER DOSPUNTO op=POW PARIZQ opIz = expr_arit COMA opDe = expr_arit PARDER {$p = expresion.NewOperacion($opIz.p,$op.text,$opDe.p,false, $op.line, localctx.(*Expr_aritContext).GetOp().GetColumn())}
-    //| T_FLOAT DOSPUNTO op=POWF PARIZQ opIz = expr_arit COMA opDe = expr_arit PARDER {$p = expresion.NewOperacion($opIz.p,$op.text,$opDe.p,false, $op.line, localctx.(*Expr_aritContext).GetOp().GetColumn())}
+   
     | opIz = expr_arit op=('*'|'/'|'%') opDe = expr_arit {$p = expresion.NewOperacion($opIz.p,$op.text,$opDe.p,false, $op.line, localctx.(*Expr_aritContext).GetOp().GetColumn())}
-    //| opIz = expr_arit op= '%' opDe = expr_arit     {$p = expresion.NewOperacion($opIz.p,$op.text,$opDe.p,false, $op.line, localctx.(*Expr_aritContext).GetOp().GetColumn())}
     
-    /*len*/
-    | opIz=expr_arit '.' LEN {$p = expresion.NewLen($opIz.p, $opIz.start.GetLine(), $opIz.start.GetColumn()  )}
+    /*count*/
+    | opIz=expr_arit '.' COUNT {$p = expresion.NewCount($opIz.p, $opIz.start.GetLine(), $opIz.start.GetColumn()  )}
 
     | opIz = expr_arit op=('+'|'-') opDe = expr_arit {$p = expresion.NewOperacion($opIz.p,$op.text,$opDe.p,false, $op.line, localctx.(*Expr_aritContext).GetOp().GetColumn())}
 
@@ -698,9 +657,8 @@ expr_arit returns[interfaces.Expresion p]
     | opIz = expr_arit op='&&' opDe = expr_arit {$p = expresion.NewOperacion($opIz.p,$op.text,$opDe.p,false, $op.line, localctx.(*Expr_aritContext).GetOp().GetColumn())}
     | opIz = expr_arit op='||' opDe = expr_arit {$p = expresion.NewOperacion($opIz.p,$op.text,$opDe.p,false, $op.line, localctx.(*Expr_aritContext).GetOp().GetColumn())}
     
-    | opIz=expr_arit '.' CLONE { $p = expresion.NewClone($opIz.p, $opIz.start.GetLine(), $opIz.start.GetColumn() ) }
+   
     | T_STRING '(' opIz=expr_arit ')' { $p = expresion.NewToString($opIz.p, $opIz.start.GetLine(), $opIz.start.GetColumn() ) }
-  //  | opIz=expr_arit TO_OWNED { $p = expresion.NewToString($opIz.p, $opIz.start.GetLine(), $opIz.start.GetColumn() ) }
 
    
 
@@ -710,9 +668,7 @@ expr_arit returns[interfaces.Expresion p]
     |  CORIZQ live=listParams CORDER { $p = expresion.NewVector($live.l_e, nil, nil, 1, $CORIZQ.line, $CORIZQ.pos ) }
 
     /*array*/
-  //| CORIZQ exp = expression ';' tam = expression CORDER { $p = expresion.NewArray(nil, $exp.p, $tam.p, 2, $CORIZQ.line, $CORIZQ.pos ) }
-   // | CORIZQ listParams CORDER {    $p = expresion.NewArray($listParams.l_e, nil, nil, 1, $CORIZQ.line, $CORIZQ.pos ) }
-    
+ 
     /*struct*/
     | ID PARIZQ l_StructExp PARDER { $p = instructionExpre.NewStructExpre($ID.text, $l_StructExp.l, $ID.line, $ID.pos ) }
 
@@ -734,10 +690,6 @@ expr_arit returns[interfaces.Expresion p]
 ;
 
 
-
-/*casteo returns[interfaces.Expresion p]
-  : PARIZQ expression AS Tipo_cast PARDER {$p = expresion.NewCasteo($expression.p, interfaces.FLOAT)}
-;*/
 
 
 

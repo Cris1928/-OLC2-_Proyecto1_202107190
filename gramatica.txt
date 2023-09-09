@@ -1,0 +1,479 @@
+start returns 
+  : listaglobal 
+;
+
+instrucciones 
+  @init
+;
+
+
+listaglobal 
+@init{
+    
+}
+    : lisfun =  listaglobal in_global  
+    | in_global     
+;
+
+in_global 
+    : funcion   
+ 
+    | newStruct 
+;
+
+
+
+modulo_item 
+    : funcion       
+    | newStruct     
+;
+
+
+funcion   
+@init{ 
+    : fn_main             {$instr =  $fn_main.instr}
+    | FN  ID '(' ')' '->' tipos_var bloque_inst   
+   | FN  ID '(' ')' '->' idob=ID bloque_inst   
+
+    | FN  ID '(' ')' bloque_inst                   
+    | FN  ID '(' params_declar ')' bloque_inst     
+    | FN  ID '('  params_declar ')' '->' tipos_var bloque_inst   
+  | FN  id=ID '('  params_declar ')' '->'  '[' idob=ID ']' bloque_inst   
+    | FN  id=ID '('  params_declar ')' '->' '[' tipos_var ']' bloque_inst   
+  | FN  id=ID '('  params_declar ')' '->' idob=ID bloque_inst   
+;
+
+
+
+
+params_declar
+@init{
+}
+    : listdec = params_declar ','  declar_parametros   
+    | declar_parametros 
+;
+
+declar_parametros 
+    : isVar=es_var ID ':' tipos_var 
+    | id=ID ':' es_referencia '[' idob=ID ']'
+    | id=ID ':' es_referencia  '[' tipos_var ']'
+    | ID ':' INOUT array_type
+ 
+    | id=ID ':' es_referencia idstruct=ID 
+    | isRef=es_var id=ID ':'  '[' idob=ID ']' 
+;
+
+
+
+
+
+instruccion
+  : printconsola  
+  | declaracion   
+  | asignacion   
+
+  | appendVec   
+
+  | if_sent   
+  | switch_sent  
+
+  | while_true 
+  | lWhile  
+  | lForin  
+  
+
+  | lBreak  
+  | lContinue   
+  
+  | newStruct  
+  
+  | callFunction   
+  | returnFun   
+
+  | ID '.' REMOVE '(' AT ':' expression ')'   
+;
+
+instruccion_dentro  
+  : printconsola   
+  | declaracion   
+  | asignacion  
+
+  | appendVec  
+
+  | if_sent   
+  | switch_sent  
+
+  | while_true  
+  | lWhile 
+  | lForin 
+  | lBreak   
+  | lContinue   
+
+  | callFunction  
+  | returnFun  
+
+  | ID '.' REMOVE '(' expression ')'  
+;
+ 
+appendVec 
+    : ID '.' APPEND '('val=expression')'  
+    | ID '.' INSERT '(' val1=expression ',' val2=expression ')'  
+;
+newStruct 
+: STRUCT ID LLAVEIZQ lista_struct LLAVEDER  
+
+lista_struct 
+: list=lista_struct MUT id=ID ':' tipos_var   
+| list=lista_struct MUT id=ID ':' idstru=ID  
+
+| list=lista_struct LET id=ID ':' tipos_var  
+| list=lista_struct LET id=ID ':' idstru=ID  
+
+| MUT id=ID ':' tipos_var  
+| MUT id=ID ':' idstru=ID  
+
+| LET id=ID ':' tipos_var  
+| LET id=ID ':' idstru=ID  ;
+
+//llamada a funcion
+callFunction  
+    : ID '(' ')'     
+    | ID '(' listParamsCall ')'  
+;
+
+
+returnFun  
+    : RETURN                
+    | RETURN  expression    
+;
+
+printconsola  
+    : PRINT_CON PARIZQ listParams PARDER 
+    
+;
+
+while_true 
+: WHILE TRUE bloque_inst  
+;
+
+lWhile  
+: WHILE expression bloque_inst  
+;
+
+
+lForin  
+: FOR ID IN expression bloque_inst 
+;
+
+lBreak  
+: BREAK  
+| BREAK expression  
+;
+
+lContinue  
+: CONTINUE 
+;
+
+listParams  
+@init{
+    $l_e = arrayList.New()
+}
+    : list = listParams ',' expression   
+    | expression  
+;
+
+
+listParamsCall 
+ 
+    : list = listParamsCall ',' es_referencia expression   
+    | es_referencia expression    
+;
+
+es_referencia returns [bool ref]
+   : AMP  
+   |  
+;
+
+
+declaracion returns  
+    :isVar=es_varr id=ID ':' tipos_var asig ='=' expression  
+    | isVar=es_varr id=ID letid asig ='=' expression  
+    /*arrays*/
+   // |LET* isVar=es_var id=ID ':' array_type asig ='=' expression  
+    /*vectores*/
+  
+    | isVar=es_varr id=ID ':'  vector_types '=' CORIZQ CORDER  
+    |isVar=es_varr id=ID ':'  vector_types '=' expression  
+   
+    | isVar=es_varr id=ID ':'   '[' idob=ID ']' '=' CORIZQ CORDER   
+
+    | isVar=es_varr id=ID ':'  '[' idob=ID ']' '=' expression  
+    | isVar=es_varr id=ID ':'  '[' tipos_var ']' '=' expression 
+;
+
+es_var returns [bool mut]
+   : MUT { $mut = true }
+   | 
+;
+es_varr returns [bool mut]
+   : MUT { $mut = true }
+   | LET { $mut = false }
+;
+
+letid returns []
+   : ':' ID
+   |
+;
+
+vector_types 
+    :'[' vector_types ']'
+    |'[' tipos_var ']'
+;
+
+
+
+array_type returns [*arrayList.List ty]
+@init{
+    $ty = arrayList.New()
+}
+: CORIZQ array_type ';' expression ']' 
+| CORIZQ tipos_var ';' expression ']'  
+
+| CORIZQ tipos_var ']'  
+;
+
+asignacion 
+    : id=ID '=' expression 
+    /*array asignacion*/
+    | id=ID list_index '=' expression 
+
+    /*struct asignacion*/
+    | l_AccessStruct '=' expression 
+
+    /*vector asignacion*/
+   
+    | id=ID '[' index=expression ']' '.' l_AccessStruct '=' val=expression 
+
+
+    | id=ID '+=' expression 
+;
+
+
+l_AccessStruct ¿
+: list=l_AccessStruct '.' ID 
+| ID 
+;
+
+list_index
+@init{
+ 
+}
+    :  listi = list_index index_array 
+    |  index_array 
+;
+
+index_array   
+    :   '[' expression ']' 
+;
+
+
+if_sent 
+    : IF expression bloque_inst  
+    | IF expression bprin = bloque_inst ELSE  belse = bloque_inst   }
+    | IF expression bprin = bloque_inst list_elseif 
+    | IF expression bprin = bloque_inst list_elseif ELSE  belse = bloque_inst+
+;
+
+//  IF as EXPRESION
+if_exp 
+    : IF expression bprin_e = bloque_exp ELSE  belse_e = bloque_exp 
+     
+;
+
+
+list_elseif_exp 
+@init{ $lista = arrayList.New()}
+: list += else_if_exp+ 
+                    
+;
+
+else_if 
+    : ELSE IF expression bloque_inst  
+;
+
+else_if_exp returns
+    : ELSE IF expression bloque_exp  
+;
+
+
+
+switch_sent  
+    : SWITCH expression LLAVEIZQ brazos = match_brazos LLAVEDER {
+    | SWITCH expression LLAVEIZQ brazos = match_brazos DEFAULT th=':' bloque_inst  LLAVEDER 
+    | SWITCH expression LLAVEIZQ brazos = match_brazos DEFAULT th=':' instruccion_dentro  LLAVEDER 
+
+    /*match expresiones*/
+    | SWITCH exp=expression LLAVEIZQ brazosexp = match_brazos_exp LLAVEDER 
+    | SWITCH exp=expression LLAVEIZQ brazosexp = match_brazos_exp DEFAULT th=':' exp_= expression  LLAVEDER 
+
+;
+
+match_brazos  
+
+    : listb = match_brazos matchbrazo    
+    | matchbrazo  
+;
+
+match_brazos_exp  
+ 
+    : listb = match_brazos_exp matchbrazo_exp    
+    | matchbrazo_exp  
+;
+
+matchbrazo returns 
+    : CASE listaOpciones th=':' bloque_inst  
+  | CASE listaOpciones th=':' instruccion_dentro   
+  
+;
+
+matchbrazo_exp 
+    : listaOpciones th=':' expression   ;
+
+
+listaOpciones  
+
+    : list = listaOpciones ',' primitivo  
+    | primitivo    
+;
+
+bloque_inst  
+    : LLAVEIZQ instrucciones LLAVEDER   
+    | LLAVEIZQ LLAVEDER  
+;
+bloque_princip  
+    : instrucciones     
+    |   
+;
+
+bloque_exp 
+    : LLAVEIZQ expression LLAVEDER    
+;
+
+
+
+tipos_var  
+    : T_NUMBER INTERROG* 
+    | T_STRING  INTERROG*  
+    | T_FLOAT INTERROG*  
+    | T_BOOL  INTERROG*  
+    | T_STR INTERROG*  
+    | STRUCT INTERROG*  
+    | T_CHAT INTERROG*  
+
+    | T_ARRAY INTERROG*  
+    | T_VECTOR INTERROG*  
+
+
+;
+
+
+
+expression  
+    : expr_arit    
+     
+    | e_ini=expression '.''.''.' e_fin=expression 
+ 
+;
+
+
+
+expr_arit returns[interfaces.Expresion p]
+    : op='-' opU = expr_arit  
+    
+   
+    | opIz = expr_arit op=('*'|'/'|'%') opDe = expr_arit 
+    
+    /*count*/
+    | opIz=expr_arit '.' COUNT 
+    | opIz = expr_arit op=('+'|'-') opDe = expr_arit  
+
+    | opIz = expr_arit op=('<'|'<='|'>'|'>='|'=='|'!=') opDe = expr_arit  
+    
+    
+    /*Relacional NOT*/
+    | op='!' opU = expr_arit  
+    /* Relacional AND | OR*/
+    | opIz = expr_arit op='&&' opDe = expr_arit  
+    | opIz = expr_arit op='||' opDe = expr_arit  
+    
+   
+    | T_STRING '(' opIz=expr_arit ')' 
+
+   
+
+    | ID '.' CAPF  
+     /*vector*/
+    |  CORIZQ exp = expression ';' tam = expression CORDER  
+    |  CORIZQ live=listParams CORDER 
+
+    /*array*/
+ 
+    /*struct*/
+    | ID PARIZQ l_StructExp PARDER 
+
+    | primitivo  
+    | PARIZQ expression PARDER  
+    | casteo   
+    | if_exp  
+    | switch_sent  
+    //| match_sent  
+
+    | while_true 
+
+    | callFunction  
+   /// | callModulo  
+
+    | ID '.' REMOVE '(' expression ')' 
+ //   | ltext=strings  
+    | IN primitivo  
+;
+
+
+
+
+
+casteo 
+  : PARIZQ expression AS typec = tipo_cast PARDER  
+;
+
+tipo_cast  
+  : T_FLOAT  
+  | T_NUMBER  
+  | USIZE  
+;
+
+l_StructExp  
+: list=l_StructExp COMA ID ':' expression  
+| ID ':' expression 
+;
+
+primitivo  
+    :NUMBER  
+             
+    | FLOAT  
+
+    | strings  
+
+    | CHAR  
+    
+
+    | TRUE  
+    | FALSE 
+    
+;
+
+listIDArray returns[interfaces.Expresion p]
+    : list = listIDArray CORIZQ expression CORDER 
+    | list = listIDArray '.' ID 
+    | ID 
+    ;

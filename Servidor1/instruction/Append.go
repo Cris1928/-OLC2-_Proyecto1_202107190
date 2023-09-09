@@ -25,9 +25,6 @@ func NewPush(id string /*expre interfaces.Expresion,*/, valAdd interfaces.Expres
 
 func (p Push) Ejecutar(env interface{}) interface{} {
 
-	//var retornoExp interfaces.Symbol
-	//retornoExp = p.Expre.EjecutarValor(env)
-
 	var retornoExp interfaces.Symbol
 	retornoExp = env.(environment.Environment).GetVariable(p.Id, p.Line, p.Column, env.(environment.Environment).Nombre)
 
@@ -48,11 +45,6 @@ func (p Push) Ejecutar(env interface{}) interface{} {
 	var ValAdd interfaces.Symbol
 	ValAdd = p.ValAdd.EjecutarValor(env)
 
-	//fmt.Println("()", interfaces.GetType(retornoExp.TipoVecCon), "-", interfaces.GetType(ValAdd.Tipo))
-	//fmt.Println(reflect.TypeOf(retornoExp.Valor), "---", reflect.TypeOf(ValAdd.Valor))
-
-	//fmt.Println("()", retornoExp.Valor.(interfaces.Symbol).Id, "-", ValAdd.Id)
-	//fmt.Println(interfaces.GetType(retornoExp.Tipo), "-", interfaces.GetType(ValAdd.Tipo))
 	if ValAdd.Tipo == retornoExp.TipoVecCon || retornoExp.Valor.(interfaces.Symbol).Id == ValAdd.Id {
 	} else {
 		desc := fmt.Sprintf("se esperaba '%v' se tiene '%v'", interfaces.GetType(retornoExp.TipoVecCon), interfaces.GetType(ValAdd.Tipo))
@@ -80,15 +72,6 @@ func (p Push) Ejecutar(env interface{}) interface{} {
 
 		//p.Expre.EjecutarValor(env).Capacity = newCap
 	}
-
-	//retornoExp.Capacity = 150
-
-	//guardar variable variable
-	/*sym := interfaces.Symbol{Id: retornoExp.Id, Tipo: retornoExp.Tipo,
-	Valor: retornoExp, IsMut: retornoExp.IsMut, Capacity: retornoExp.Capacity, Line: retornoExp.Line,
-	Column: retornoExp.Column}*/
-
-	//fmt.Println("--- ****//Capacity", retornoExp.Capacity)
 
 	env.(environment.Environment).AlterVariableVec(p.Id, retornoExp)
 

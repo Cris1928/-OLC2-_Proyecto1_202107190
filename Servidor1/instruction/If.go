@@ -43,7 +43,7 @@ func (i If) Ejecutar(env interface{}) interface{} {
 		desc := fmt.Sprintf("se esperaba '%v' se tiene '%v'", interfaces.GetType(interfaces.BOOLEAN), interfaces.GetType(result.Tipo))
 		err.NewError("Condición invalida "+desc, env.(environment.Environment).Nombre, i.Line, i.Column)
 		return nil
-		//return interfaces.Symbol{Id: "", Tipo: interfaces.NULL, Valor: resultado}
+
 	}
 
 	if result.Valor == true {
@@ -53,12 +53,10 @@ func (i If) Ejecutar(env interface{}) interface{} {
 
 		var rest interface{}
 		for _, s := range i.LB_Principal.ToArray() {
-			//rest := s.(interfaces.Instruction).Ejecutar(tmpEnv)
 			rest = s.(interfaces.Instruction).Ejecutar(tmpEnv)
 			if rest != nil {
 
 				if reflect.TypeOf(rest) == reflect.TypeOf(interfaces.Symbol{}) {
-					//fmt.Println("123123 rest.(interfaces.Symbol).Tipo: ", interfaces.GetType(rest.(interfaces.Symbol).Tipo))
 					if rest.(interfaces.Symbol).TipoRet == interfaces.BREAK || rest.(interfaces.Symbol).TipoRet == interfaces.CONTINUE || rest.(interfaces.Symbol).TipoRet == interfaces.RETURN {
 						return rest
 					}
@@ -68,23 +66,19 @@ func (i If) Ejecutar(env interface{}) interface{} {
 		return rest
 
 	} else {
-		////////ELSE IF
+		//ELSE IF
 		if i.LB_IfElse != nil {
 
 			for _, s := range i.LB_IfElse.ToArray() {
 
 				var elseif interfaces.Symbol
-				//elseif = i.Condicion.Ejecutar(env)
 				elseif = s.(If).Condicion.EjecutarValor(env)
-				//fmt.Println("-22222222222222---elseif.Valor: ", elseif.Valor)
-				//fmt.Println("-22222222222222---elseif.Tipo: ", elseif.Tipo)
 
 				if elseif.Tipo != interfaces.BOOLEAN {
-					/////////////////////////////////////aqui
 					desc := fmt.Sprintf("se esperaba '%v' se tiene '%v'", interfaces.GetType(interfaces.BOOLEAN), interfaces.GetType(elseif.Tipo))
 					err.NewError("Condición invalida "+desc, env.(environment.Environment).Nombre, s.(If).Line, s.(If).Column)
 					return nil
-					//return interfaces.Symbol{Id: "", Tipo: interfaces.NULL, Valor: resultado}
+
 				}
 
 				if elseif.Valor == true {
@@ -107,10 +101,31 @@ func (i If) Ejecutar(env interface{}) interface{} {
 					}
 
 					return rest
-					//return nil
-					//return interfaces.Symbol{Id: "", Tipo: interfaces.NULL, Valor: resultado}
 
 				}
+
+				/*if elseif.Valor == true {
+
+					var rest interface{}
+					var tmpEnv_elseif environment.Environment
+					tmpEnv_elseif = environment.NewEnvironment("else if", env.(environment.Environment))
+
+					for _, sif := range s.(If).LB_Principal.ToArray() {
+						//rest := sif.(interfaces.Instruction).Ejecutar(tmpEnv_elseif)
+						rest = sif.(interfaces.Instruction).Ejecutar(tmpEnv_elseif)
+						if rest != nil {
+							if reflect.TypeOf(rest) == reflect.TypeOf(interfaces.Symbol{}) {
+								if rest.(interfaces.Symbol).TipoRet == interfaces.BREAK || rest.(interfaces.Symbol).TipoRet == interfaces.CONTINUE || rest.(interfaces.Symbol).TipoRet == interfaces.RETURN {
+									return rest
+								}
+							}
+						}
+
+					}
+
+					return rest
+
+				}*/
 
 			}
 
@@ -137,5 +152,5 @@ func (i If) Ejecutar(env interface{}) interface{} {
 	}
 
 	return nil
-	//return interfaces.Symbol{Id: "", Tipo: interfaces.NULL, Valor: nil}
+
 }

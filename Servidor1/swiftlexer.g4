@@ -39,27 +39,21 @@ FALSE: 'false';
 AS:       'as';
 AT:       'at';
 
-//POW:   'pow';
-//POWF:   'powf';
+
 
 LET:   'let';
 MUT:   'var';
 
 STRUCT:  'struct';
-VEC:     'vec!';
-VECN:     'vec';
-CAPACITY:     'with_capacity';
 
-//functions
-TO_STRING:   '.to_string()';
-TO_OWNED:   '.to_owned()';
 
-LEN:        'count';
+
+
+
+COUNT:        'count';
 NEW:        'new()';
 CAPF:       'capacity()';
-CLONE:      'clone()';
-ABS:        'abs()';
-PUSH:       'append';
+APPEND:       'append';
 
 
 INSERT:     'insert';
@@ -71,7 +65,6 @@ MODULO:        'mod';
 TYPETHEN:      '->';
 
 FN:     'func';
-MAIN:   'main';
 RETURN: 'return';
 
 //REF: '&mut';

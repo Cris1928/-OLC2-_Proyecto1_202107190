@@ -21,17 +21,14 @@ type Declaration struct {
 	Column int
 }
 
-func NewDeclaration(id string, tipo interfaces.TipoExpresion, val interfaces.Expresion, IsMut bool /*, isArray bool, isStruct bool*/, line int, column int) Declaration {
-	//fmt.Println("aaaaaarrrraayy				tipo: ", interfaces.GetType(tipo), " - ", id)
+func NewDeclaration(id string, tipo interfaces.TipoExpresion, val interfaces.Expresion, IsMut bool, line int, column int) Declaration {
+
 	instr := Declaration{id, tipo, val, IsMut, line, column}
 	return instr
 }
 
 func (p Declaration) Ejecutar(env interface{}) interface{} {
 
-	//fmt.Println("	entra en declaracion		tipo: ", interfaces.GetType(p.Tipo), " - ", p.Id)
-
-	/*si es una declaracion sin valor, parametros*/
 	if p.Expresion != nil {
 		var result interfaces.Symbol
 		result = p.Expresion.EjecutarValor(env)
@@ -45,7 +42,6 @@ func (p Declaration) Ejecutar(env interface{}) interface{} {
 
 		} else if p.Tipo == interfaces.NULL {
 
-			//fmt.Println("se crea xd: ", interfaces.GetType(result.Tipo))
 			if result.Tipo == interfaces.ARRAY || result.Tipo == interfaces.VECTOR {
 
 				env.(environment.Environment).SaveVariable(p.Id, result, result.Tipo, p.IsMut, p.Line, p.Column, env.(environment.Environment).Nombre, nil, result.Valor.(*arrayList.List).Len())
@@ -55,24 +51,21 @@ func (p Declaration) Ejecutar(env interface{}) interface{} {
 			}
 
 		} else {
-			//fmt.Println("Los tipos no coinciden")
+
 			desc := fmt.Sprintf("se esperaba '%v' se tiene '%v'", interfaces.GetType(p.Tipo), interfaces.GetType(result.Tipo))
 			err.NewError("Tipos no coinciden en Declaración "+desc, env.(environment.Environment).Nombre, p.Line, p.Column)
 		}
 
-		//return result.Valor
-		/*} else {
-		fmt.Println("la expresion es nula xd")*/
 	}
 	return nil
 }
 
 func (p Declaration) IsArray_Valido(env interface{}, arrlist *arrayList.List) bool {
-
+	/**/
 	for i := 0; i < arrlist.Len(); i++ {
 		arr := arrlist.GetValue(i)
 		tipo_primer := arrlist.GetValue(0).(interfaces.Symbol).Tipo
-		//fmt.Println("11111 arr 			: ", arr)
+
 		expre_arr := arr.(interfaces.Symbol)
 
 		if arr.(interfaces.Symbol).Tipo == interfaces.ARRAY {

@@ -41,6 +41,14 @@ func (p Assignment) IsArray_Valido(env interface{}, arr1 interfaces.Symbol, l_ti
 		err.NewError("Error en Size "+desc, env.(environment.Environment).Nombre, p.Line, p.Column)
 		return false
 	}
+	/*
+		if res_exp.Tipo == interfaces.INTEGER {
+			arrSize = res_exp.Valor.(int)
+		} else {
+			desc := fmt.Sprintf("Se esperaba un '%v' se tiene '%v'", "int", interfaces.GetType(res_exp.Tipo))
+			err.NewError("Error en Size "+desc, env.(environment.Environment).Nombre, p.Line, p.Column)
+			return false
+		}*/
 	l_tipo.RemoveAtIndex(l_tipo.Len() - 1)
 
 	for _, arr := range arr1.Valor.(*arrayList.List).ToArray() {
@@ -48,7 +56,7 @@ func (p Assignment) IsArray_Valido(env interface{}, arr1 interfaces.Symbol, l_ti
 			/// si los tipos son diferentes
 
 			desc := fmt.Sprintf("se esperaba '%v' se tiene '%v'", interfaces.GetType(arrType.(interfaces.ArrayType).Tipo), interfaces.GetType(arr.(interfaces.Symbol).Tipo))
-			//fmt.Println("***array*tipo es diferente de array t symbol: ",  desc)
+
 			err.NewError("Array invalida "+desc, env.(environment.Environment).Nombre, arrType.(interfaces.ArrayType).Line, arrType.(interfaces.ArrayType).Column)
 
 			return false
@@ -109,6 +117,26 @@ func (p Assignment) Assignment_Array(env interface{}, arrlist interfaces.Symbol,
 					err.NewError("1: Tipos no coinciden en Asignación "+desc, env.(environment.Environment).Nombre, p.Line, p.Column)
 					return nil, false
 				}
+				/*
+					if arr.(interfaces.Symbol).Tipo == resul.Tipo {
+
+						if resul.Tipo == interfaces.ARRAY {
+
+							if resul.Valor.(*arrayList.List).Len() != arr.(interfaces.Symbol).Valor.(*arrayList.List).Len() {
+								//fmt.Println(" error en dimensiones")
+								desc := fmt.Sprintf("se esperaba '%v' se tiene '%v'", arr.(interfaces.Symbol).Valor.(*arrayList.List).Len(), resul.Valor.(*arrayList.List).Len())
+								err.NewError("Error en Dimensiones de Array "+desc, env.(environment.Environment).Nombre, p.Line, p.Column)
+								return nil, false
+							}
+						}
+
+						tempExp.Add(resul)
+
+					} else {
+						desc := fmt.Sprintf("se esperaba '%v' se tiene '%v'", interfaces.GetType(arr.(interfaces.Symbol).Tipo), interfaces.GetType(resul.Tipo))
+						err.NewError("1: Tipos no coinciden en Asignación "+desc, env.(environment.Environment).Nombre, p.Line, p.Column)
+						return nil, false
+					}*/
 
 			} else {
 
@@ -176,7 +204,6 @@ func (p Assignment) Ejecutar(env interface{}) interface{} {
 
 		tempExp, is_Correct := p.Assignment_Array(env, result_mut.Valor.(interfaces.Symbol), p.Dimensiones.Clone(), result)
 
-		//		fmt.Println("FINNNN")
 		if is_Correct == false {
 			return nil
 		}

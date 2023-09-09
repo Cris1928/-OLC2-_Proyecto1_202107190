@@ -40,42 +40,17 @@ func (p Insert) Ejecutar(env interface{}) interface{} {
 				return nil
 			}
 
-			/*if tmpExp1.Valor.(int) == tmpSyVec.Valor.(interfaces.Symbol).Valor.(*arrayList.List).Len() {
-				tmpArr.Add(tmpExp2)
-
-				///
-				if (tmpSyVec.Valor.(interfaces.Symbol).Valor.(*arrayList.List).Len() + 1) > tmpSyVec.Capacity {
-					var newCap = 0
-					if tmpSyVec.Capacity <= 0 {
-						tmpSyVec.Capacity = 1
-					}
-					newCap = tmpSyVec.Capacity * 2
-					tmpSyVec.Capacity = newCap
-
-				}
-				///
-			} else {*/
-
 			if tmpExp1.Valor.(int) <= tmpSyVec.Valor.(interfaces.Symbol).Valor.(*arrayList.List).Len() && tmpExp1.Valor.(int) >= 0 {
-				//fmt.Println("index tmpExp1.Valor.(int) ", tmpExp1.Valor.(int))
-				//fmt.Println("tmpSyVec.Valor.(interfaces.Symbol).Valor.(*arrayList.List).Len()  ", tmpSyVec.Valor.(interfaces.Symbol).Valor.(*arrayList.List).Len())
 
-				/*if tmpExp1.Valor.(int) == 0 && tmpSyVec.Valor.(interfaces.Symbol).Valor.(*arrayList.List).Len() == 0 {
-					tmpArr.Add(tmpExp2)
-					fmt.Println("inserto 0 ")
-				}*/
 				for i := 0; i <= tmpSyVec.Valor.(interfaces.Symbol).Valor.(*arrayList.List).Len(); i++ {
-					//fmt.Println("			i: ", i, " - index: ", tmpExp1.Valor.(int))
+
 					if tmpExp1.Valor.(int) == i {
 						tmpArr.Add(tmpExp2)
 
-						//fmt.Println("i: insertando", i)
 						if i < tmpSyVec.Valor.(interfaces.Symbol).Valor.(*arrayList.List).Len() {
 							tmpArr.Add(tmpSyVec.Valor.(interfaces.Symbol).Valor.(*arrayList.List).GetValue(i))
 						}
 
-						//fmt.Println("tmpSyVec.Valor.(interfaces.Symbol).Valor.(*arrayList.List).Len()", tmpSyVec.Valor.(interfaces.Symbol).Valor.(*arrayList.List).Len())
-						//fmt.Println("tmpSyVec.Capacity", tmpSyVec.Capacity)
 						if (tmpSyVec.Valor.(interfaces.Symbol).Valor.(*arrayList.List).Len() + 1) > tmpSyVec.Capacity {
 							var newCap = 0
 							if tmpSyVec.Capacity <= 0 {
@@ -110,9 +85,7 @@ func (p Insert) Ejecutar(env interface{}) interface{} {
 	}
 	//remplazar lista
 	tmpSyVec.Valor = tmpArr
-	//fmt.Println("tmpSyVec: ", reflect.TypeOf(tmpSyVec.Valor))
 
-	//env.(environment.Environment).AlterVariableVec(p.Id, tmpSyVec)
 	env.(environment.Environment).AlterVariable(p.Id, tmpSyVec)
 
 	return nil

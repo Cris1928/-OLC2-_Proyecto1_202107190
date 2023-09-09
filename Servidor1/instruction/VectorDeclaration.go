@@ -51,10 +51,6 @@ func (p VectorDeclaration) Ejecutar(env interface{}) interface{} {
 	if p.Expresion != nil {
 
 		reval2 := p.Expresion.EjecutarValor(env)
-
-		//		fmt.Println("reval2.Tipo: ", reval2.Tipo)
-		///)		fmt.Println("p.Tipos: ", p.Tipos)
-		//		fmt.Println("vec: ", interfaces.VECTOR)
 		if reval2.Tipo == interfaces.VECTOR {
 
 			for _, s := range reval2.Valor.(*arrayList.List).ToArray() {
@@ -102,7 +98,7 @@ func (p VectorDeclaration) Ejecutar(env interface{}) interface{} {
 			TipoVecCon: p.Tipos,
 		}
 	}
-	env.(environment.Environment).SaveVariable(p.Id, valvec, interfaces.VECTOR, p.IsMut, p.Line, p.Column, env.(environment.Environment).Nombre, nil, capacidad) // aqui se guarda la variable
+	env.(environment.Environment).SaveVariable(p.Id, valvec, interfaces.VECTOR, p.IsMut, p.Line, p.Column, env.(environment.Environment).Nombre, nil, capacidad)
 	//fmt.Println("								valvec.TipoVecCon: ", interfaces.GetType(valvec.TipoVecCon))
 
 	return nil

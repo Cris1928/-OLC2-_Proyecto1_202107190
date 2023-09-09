@@ -38,14 +38,11 @@ func (p Vector) EjecutarValor(env interface{}) interfaces.Symbol {
 	if p.TipoDec == 1 {
 		tempType = p.ListExp.GetValue(0).(interfaces.Expresion).EjecutarValor(env).Tipo
 
-		//fmt.Println("		tempType: ", tempType)
 		for _, s := range p.ListExp.ToArray() {
 			valsym := s.(interfaces.Expresion).EjecutarValor(env)
-			//	fmt.Println("--		valsym: ", valsym)
 			if valsym.Tipo == tempType {
-				//	fmt.Println("--		valsym.Valor: ", valsym.Valor)
+				//fmt.Println("--		valsym.Valor: ", valsym.Valor)
 				tempExp.Add(valsym)
-				//	fmt.Println("--		tempExp: ", tempExp)
 			} else {
 				//fmt.Println("Error en el tipo del vector")
 				desc := fmt.Sprintf("se esperaba '%v' se tiene '%v'", interfaces.GetType(tempType), interfaces.GetType(valsym.Tipo))

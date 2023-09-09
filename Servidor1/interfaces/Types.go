@@ -37,20 +37,6 @@ var nametype = [14]string{
 	"Character",
 }
 
-const (
-	PUBLIC TipoAccess = iota
-	PRIVATE
-	MOD
-	INS
-)
-
-var nameAccesstype = [4]string{
-	"pub",
-	"private",
-	"modulo",
-	"instruccion",
-}
-
 func GetType(tipo TipoExpresion) string {
 
 	return nametype[tipo]
